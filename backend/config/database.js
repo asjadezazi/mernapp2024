@@ -9,8 +9,5 @@ const connectDatabase = () => {
     .then((data) => {
       console.log(`MongoDB connected Successfully: ${data.connection.host}`);
     })
-    .catch((err) => {
-      console.log(err);
-    });
 };
 module.exports = connectDatabase;
