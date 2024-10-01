@@ -17,7 +17,7 @@ exports.createProduct = async (req, res, next) => {
   }
 };
 
-exports.updateProduct = trycatchError(async (req, res) => {
+exports.updateProduct = trycatchError(async (req, res, next) => {
   const updateData = req.body;
   // Update the product by ID
   const product = await Product.findByIdAndUpdate(req.params.id, updateData, {
@@ -25,72 +25,27 @@ exports.updateProduct = trycatchError(async (req, res) => {
     runValidators: true,
   });
   if (!product) {
-    return res.status(404).json({
-      success: false,
-      message: "Product not found",
-    });
+    return new CatchError("Product not found", 404);
   }
   res.status(200).json({
     success: true,
+    message: "Product successfully updated",
     product,
   });
 });
 
-// exports.deleteProduct = async (req, res) => {
-//   try {
-//     const product = await Product.findByIdAndDelete(req.params.id);
-//     if (!product) {
-//       return res.status(404).json({
-//         success: false,
-//         message: 'Product not found',
-//       });
-//     }
-//     res.status(200).json({
-//       success: true,
-//       message: 'Product successfully deleted',
-//       product,
-//     });
-//   } catch (error) {
-//     console.error('Error deleting product:', error);
-//     res.status(500).json({
-//       success: false,
-//       message: 'Server error',
-//       error: error.message,
-//     });
-//   }
-// };
-
 exports.deleteProduct = trycatchError(async (req, res, next) => {
   const product = await Product.findByIdAndDelete(req.params.id);
+
   if (!product) {
-    return res.status(404).json({
-      success: false,
-      message: "Product not found",
-    });
+    return next(new CatchError("Product not found", 404));
   }
   res.status(200).json({
     success: true,
     message: "Product successfully deleted",
-    Product,
+    product,
   });
 });
-
-// exports.getAllProducts = async (req, res) => {
-//   try {
-//     const products = await Product.find();
-//     res.status(200).json({
-//       success: true,
-//       products,
-//     });
-//   } catch (error) {
-//     console.error('Error fetching products:', error);
-//     res.status(500).json({
-//       success: false,
-//       message: 'Server error',
-//       error: error.message,
-//     });
-//   }
-// };
 
 exports.getAllProducts = trycatchError(async (req, res) => {
   const product = await Product.find();

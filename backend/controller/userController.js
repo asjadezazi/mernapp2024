@@ -21,18 +21,30 @@ exports.registerUser = async (req, res, next) => {
 
 exports.loginUser = async (req, res, next) => {
   const { email, password } = req.body;
+
   if (!email || !password) {
-    return next(new CatchError("please enter your email and password", 400));
+    return next(new CatchError("Please enter your email and password", 400));
   }
-  const userEmail = await user.findone({ email }).select("+Password");
-  if (userEmail) {
-    return next("Invaild email and password");
+
+  const user = await User.findOne({ email }).select("+password");
+
+  if (!user) {
+    console.log("User not found with email: ", email);
+    return next(new CatchError("Invalid email or password", 401));
   }
-  const userPassword = await user.compare();
-  if (userPassword) {
-    return next("Invaild email and password");
+
+  console.log("User found: ", user);
+
+  const isPasswordMatch = await user.comparePassword(password);
+
+  console.log("Password match result: ", isPasswordMatch);
+
+  if (!isPasswordMatch) {
+    return next(new CatchError("Invalid email or password", 401));
   }
+
   const token = user.getJWTToken();
+
   res.status(201).json({
     success: true,
     token,
