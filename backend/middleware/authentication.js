@@ -5,7 +5,7 @@ const User = require("../models/userModel")
 
 const isAuthenticated = tryCatchError(async (req, res, next) => {
     const { token } = req.cookies
-    console.log(token);
+    // console.log(token);
     if (!token) {
 
         return next(new CatchError("Please login to access this resourse",401))
