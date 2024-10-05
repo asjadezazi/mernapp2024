@@ -1,7 +1,7 @@
 const Product = require("../models/productModel");
 const trycatchError = require("../middleware/trycatchError");
 const CatchError = require("../resources/catcherror");
-
+    
 exports.createProduct = async (req, res, next) => {
   const product = await Product.create(req.body);
   if (product) {

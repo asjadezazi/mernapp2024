@@ -1,5 +1,6 @@
 const User = require("../models/userModel");
 const CatchError = require("../resources/catcherror");
+const sendToken = require("../resources/token");
 
 exports.registerUser = async (req, res, next) => {
   const { name, email, password } = req.body;
@@ -12,11 +13,7 @@ exports.registerUser = async (req, res, next) => {
       url: "sample profile url",
     },
   });
-  const token = user.getJWTToken();
-  res.status(201).json({
-    success: true,
-    token,
-  });
+  sendToken(user, 201, res);
 };
 
 exports.loginUser = async (req, res, next) => {
@@ -29,24 +26,20 @@ exports.loginUser = async (req, res, next) => {
   const user = await User.findOne({ email }).select("+password");
 
   if (!user) {
-    console.log("User not found with email: ", email);
     return next(new CatchError("Invalid email or password", 401));
   }
 
-  console.log("User found: ", user);
-
-  const isPasswordMatch = await user.comparePassword(password);
-
-  console.log("Password match result: ", isPasswordMatch);
-
-  if (!isPasswordMatch) {
+  const isPasswordValid = await user.comparePassword(password);
+  if (!isPasswordValid) {
     return next(new CatchError("Invalid email or password", 401));
   }
+  sendToken(user, 200, res);
+};
 
-  const token = user.getJWTToken();
-
-  res.status(201).json({
+exports.logoutUser = (req, res, next) => {
+  res.cookie("token", null, { expires: new Date(Date.now()) });
+  res.status(200).json({
     success: true,
-    token,
+    message: "LogOut",
   });
 };
