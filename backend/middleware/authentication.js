@@ -3,7 +3,7 @@ const CatchError = require("../resources/catcherror")
 const jwt = require("jsonwebtoken")
 const User = require("../models/userModel")
 
-const isAuthenticated = tryCatchError(async (req, res, next) => {
+exports.isAuthenticated = tryCatchError(async (req, res, next) => {
     const { token } = req.cookies
     // console.log(token);
     if (!token) {
@@ -15,4 +15,11 @@ const isAuthenticated = tryCatchError(async (req, res, next) => {
     next()
 
 })
-module.exports = isAuthenticated;
+exports.authorizedRoles = (...roles) => {
+    return (req, res, next) => {
+        if (!roles.includes(req.user.role)) {
+            return next(new catchError(`Role:${req.user.role} not allowd to access`))
+        }
+        next()
+    }
+}
